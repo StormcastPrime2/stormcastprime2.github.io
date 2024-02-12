@@ -114,7 +114,6 @@ font-size: 30px;
 }
 
 #about-intro-img {
-    width:30%;
     border-radius: 100%;
     object-fit: contain;
     max-width: 500px;
@@ -153,12 +152,13 @@ hr.rounded {
     cursor: pointer;
 }
 
-.projects-list li img {
+.project-bg {
     object-fit: cover;
     width: 350px;
     height: 200px;
     vertical-align: middle;
     border-radius: 5px;
+    position: relative;
 }
 
 .projects-list::after {
@@ -170,6 +170,16 @@ hr.rounded {
     transform: scale(1);
 }
 
+.project-title {
+    font-family: monospace;
+    font-size: 25px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .overlay {
     position: absolute;
     width: 350px;
@@ -177,8 +187,8 @@ hr.rounded {
     background: rgba(57, 57, 57, 0.502);
     top: 0;
     left: 0;
-    /* transform: scale(0); */
-    /* transition: all 0.2s 0.1s ease-in-out; */
+    /* transform: scale(0); 
+    transition: all 0.2s 0.1s ease-in-out; */
     color: #fff;
     border-radius: 5px;
     /* center overlay text */
@@ -187,6 +197,17 @@ hr.rounded {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.icon {
+    background: url('./images/pico-logo.png');
+    height: 40px;
+    width: 40px;
+    display: block;
+    position: absolute;
+    opacity: 0.7;
+    top:155px;
+    left:5px;
 }
   
 
@@ -207,3 +228,172 @@ footer a{
     color: rgb(60, 60, 60);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+/*
+  black: rgb(0, 23, 50); #001732;
+  orange: rgb(241, 117, 78); #f1754e;
+  lightgreen: rgba(78, 241, 187, 0.7); #4ef1bbb3;
+  bg-color: rgb(216, 238, 232);  #d8eee8;
+  bg-dark-color: rgb(203, 224, 221); #cbe0dd;
+  clicked-cell: rgb(157, 197, 199); #9dc5c7;
+  transparent red: rgba(241, 117, 78, 0.7); #f1754eb3;
+
+
+	font-family: 'Darker Grotesque', sans-serif;
+	font-family: 'Press Start 2P', cursive;
+*/
+
+/* # Generic */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.game-container {
+    width: calc((48px * 9) + 4px);
+}
+
+/* # Game Panel */
+
+h1 {
+    font-size: 40px;
+}
+
+.score {
+    display: flex;
+    justify-content: space-between;
+    font-size: 32px;
+}
+
+/* # Game grid */
+
+.game-board {
+    border: 2px solid rgb(0, 23, 50);
+    position: relative;
+}
+
+.grid {
+    width: calc(48px * 9); /* change multiplier based on grid row count */
+    height: calc(48px * 9); /* change multiplier based on game column count */
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.cell {
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    outline: 1px dashed grey;
+    background-position: center;
+    background-size: contain;
+}
+
+.cell-dark {
+    background-color: rgb(203, 224, 221);
+}
+
+.river {
+    outline: none;
+    background-color: lightblue;
+}
+
+.road {
+    outline: none;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    background-color: gray;
+}
+
+.car {
+    background-image: url('./images/game/car.png');
+}
+
+.bus {
+    background-image: url('./images/game/bus.png');
+}
+
+.wood {
+    background-image: url('./images/game/wood.png');
+}
+
+
+.duck {
+    background-image: url('./images/game/duck-walk.gif');
+}
+
+.river.duck {
+    background-image: url('./images/game/duck-walk.gif'), url('images/game/wood.png');
+}
+
+.time-up,
+.duck-arrived {
+    background-image: url('./images/game/duck-standing.png');
+}
+
+.duck-hit {
+    background-image: url('./images/game/duck-hit.png');
+}
+
+.duck-drowned {
+    background-image: url('./images/game/duck-drowned.png');
+}
+
+/* # Game over */
+
+.end-game-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #f1754eb3;
+
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+}
+
+.win {
+background-color: rgba(78, 241, 187, 0.7);
+}
+
+.end-game-text {
+    font-size: 48px;
+    font-family: 'Press Start 2P', cursive;
+    text-transform: uppercase;
+}
+
+.btn {
+    font-size: 24px;
+    font-family: 'Darker Grotesque', sans-serif;
+    padding: 4px 20px 8px 20px;
+    /* width: 50%; */
+    cursor: pointer;
+    text-transform: uppercase;
+    border: 2px solid rgb(0, 23, 50);
+}
+
+.btn:hover {
+    background-color: rgb(203, 224, 221);
+}
+
+/* # Utilities */
+
+.hidden {
+    display: none;
+}

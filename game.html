@@ -3,7 +3,7 @@
     <head>
         <title>Alessandro Ciraolo</title>
         <link rel="stylesheet" href="styles.css">
-        <script src="scripts.js"></script>
+        
     </head>
     <body>
 
@@ -20,21 +20,34 @@
         </nav>
 
         <main>
-            <div class="flex-container" style="margin-top: 100px;">
-                <div id="intro-text" style="flex-grow: 0.5">
-                    <h1>Hello there!</h1>
-                    <p>I'm a software developer that likes making games, VR apps, and websites.</p>
+            <!-- Container element for the game board -->
+            <div class="game-container">
+                <!-- Game title and timer -->
+                <header class="game-panel">
+                <h1>Ducker</h1>
+                <div class="score">
+                    <span>TIME</span>
+                    <span class="timer">00015</span>
                 </div>
-                <img src="./images/me-thumbs-up.jpg" alt="Alessandro, thumbs-up style" id="about-intro-img">
+                </header>
+        
+                <main class="game-board">
+                <!-- Game grid -->
+                <div class="grid"></div>
+        
+                <!-- Game over -->
+                <div class="end-game-screen hidden">
+                    <h2 class="end-game-text">Game<br />Over</h2>
+                    <button class="btn play-again">Play Again</button>
+                </div>
+                </main>
             </div>
-
-            <hr class="rounded">
         </main>
         
         <footer>
             <span style="margin: 50px;"><a href="https://www.freepik.com/free-photo/steel-blue-abstract-background-wallpaper-image_15601163.htm#query=minimalist%20blue%20background&position=0&from_view=keyword&track=ais&uuid=5232345b-5c6f-47d8-b507-7399933f0e2d">Background Image by rawpixel.com</a> on Freepik</span>
             <span style="margin-right: 30px;"">Website made by me! Check out the code <a href="https://github.com/StormcastPrime2/Portfolio-Website">here</a></span>
         </footer>
-
     </body>
+    <script src="scripts.js"></script>
 </html>
