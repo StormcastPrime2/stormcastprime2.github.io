@@ -27,10 +27,15 @@ h2 {
     font-family:monospace;
     font-size: 40px;
     margin: 0px;
-    justify-content: center;
-    align-items: center;
     white-space: nowrap;
+    text-align: center;
 } 
+
+h3 {
+    font-family:monospace;
+    font-size: 18px;
+    text-align: center;
+}
 
 p {
     font-family:monospace;
@@ -93,14 +98,8 @@ p {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    flex-wrap: nowrap;
-    align-items: center;
-}
-
-@media (max-width: 800px) {
-    .flex-container {
-      flex-direction: column;
-    }
+    align-content: center;
+    flex-wrap: wrap;
 }
   
 #intro-text {
@@ -131,8 +130,8 @@ font-size: 30px;
 }
 
 hr.rounded {
-    margin: 100px auto 50px;
-    width: 40%;
+    margin: 100px auto 70px;
+    width: 45%;
     border: 2px solid rgb(100, 100, 100);
     border-radius: 1px;
     opacity: 0.4;
@@ -144,6 +143,8 @@ hr.rounded {
     flex-wrap: wrap;
     gap: 30px;
     list-style-type: none;
+    align-items: center;
+    justify-content: center;
 }
 
 .projects-list > li {
@@ -152,12 +153,17 @@ hr.rounded {
     cursor: pointer;
 }
 
+.projects-list a {
+    width: 100%;
+    height: 100%;
+}
+
 .project-bg {
     object-fit: cover;
     width: 350px;
     height: 200px;
     vertical-align: middle;
-    border-radius: 5px;
+    border-radius: 10px;
     position: relative;
 }
 
@@ -190,13 +196,14 @@ hr.rounded {
     /* transform: scale(0); 
     transition: all 0.2s 0.1s ease-in-out; */
     color: #fff;
-    border-radius: 5px;
+    border-radius: 10px;
     /* center overlay text */
     font-family: monospace;
     font-size: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
 }
 
 .icon {
@@ -262,7 +269,8 @@ footer a{
 }
 
 .game-container {
-    width: calc((48px * 9) + 4px);
+    width: 438px;
+    margin: auto;
 }
 
 /* # Game Panel */
