@@ -7,37 +7,34 @@ const timer = document.querySelector('.timer');
 const endGameScreen = document.querySelector('.end-game-screen');
 const endGameText = document.querySelector('.end-game-text');
 const playAgainBtn = document.querySelector('.play-again');
+const stunDuration = 3; // in seconds
+const stunCooldownDuration = 1; // in seconds
 
 // Nested Array
 const gridMatrix = [
-  ['', '', '', '', '', '', '', '', ''],
-  [
-    'river',
-    'wood',
-    'wood',
-    'river',
-    'wood',
-    'river',
-    'river',
-    'river',
-    'river',
-  ],
-  ['river', 'river', 'river', 'wood', 'wood', 'river', 'wood', 'wood', 'river'],
-  ['', '', '', '', '', '', '', '', ''],
-  ['road', 'bus', 'road', 'road', 'road', 'car', 'road', 'road', 'road'],
-  ['road', 'road', 'road', 'car', 'road', 'road', 'road', 'road', 'bus'],
-  ['road', 'road', 'car', 'road', 'road', 'road', 'bus', 'road', 'road'],
-  ['', '', '', '', '', '', '', '', ''],
-  ['', '', '', '', '', '', '', '', ''],
+  ['home', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
+  ['wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+  ['', '', 'spikes', '', '', '', 'spikes', '', '', '', '', '', ''],
+  ['', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall', 'wall'],
+  ['', '', 'spikes', '', '', '', 'spikes', '', '', '', '', '', ''],
+  ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'worm', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+  ['', '', '', '', '', '', '', 'spikes', '', '', '', '', ''],
+  ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall'],
+  ['', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
+  ['wall', '', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+  ['', '', '', '', '', 'spikes', '', '', '', '', '', '', 'home'],
 ];
 
 // Initialise variables that control the game "settings"
 const victoryRow = 0;
-const riverRows = [1, 2];
-const roadRows = [4, 5, 6];
-const duckPosition = { x: 4, y: 8 };
+const roadRows = [5, 6, 7, 8];
+const riverRows = [0, 1, 2, 3];
+const duckPosition = { x: 11, y: 10 };
 let contentBeforeDuck = '';
-let time = 15;
+let time = 60;
+let stunned = false;
+let stunOnCooldown = false;
+let hasWorm = false;
 
 function drawGrid() {
   grid.innerHTML = '';
@@ -74,54 +71,101 @@ function placeDuck() {
 
 function moveDuck(event) {
   const key = event.key;
-  console.log(key);
+  //console.log(key);
   gridMatrix[duckPosition.y][duckPosition.x] = contentBeforeDuck;
   // arrows and "WASD"
-  switch (key) {
-    case 'ArrowUp':
-    case 'w':
-    case 'W':
-      if (duckPosition.y > 0) duckPosition.y--;
-      break;
-    case 'ArrowDown':
-    case 's':
-    case 'S':
-      if (duckPosition.y < 8) duckPosition.y++;
-      break;
-    case 'ArrowLeft':
-    case 'a':
-    case 'A':
-      if (duckPosition.x > 0) duckPosition.x--;
-      break;
-    case 'ArrowRight':
-    case 'd':
-    case 'D':
-      if (duckPosition.x < 8) duckPosition.x++;
-      break;
+  // includes checks to ensure duck does not move out of bounds.
+  if (!stunned) {
+    switch (key) {
+      case 'ArrowUp':
+      case 'w':
+      case 'W':
+        if (duckPosition.y > 0 && (gridMatrix[duckPosition.y - 1][duckPosition.x] != 'wall')) duckPosition.y--;
+        break;
+      case 'ArrowDown':
+      case 's':
+      case 'S':
+        if (duckPosition.y < 10 && (gridMatrix[duckPosition.y + 1][duckPosition.x] != 'wall')) duckPosition.y++;
+        break;
+      case 'ArrowLeft':
+      case 'a':
+      case 'A':
+        if (duckPosition.x > 0 && (gridMatrix[duckPosition.y][duckPosition.x - 1] != 'wall')) duckPosition.x--;
+        break;
+      case 'ArrowRight':
+      case 'd':
+      case 'D':
+        if (duckPosition.x < 12 && (gridMatrix[duckPosition.y][duckPosition.x + 1] != 'wall')) duckPosition.x++;
+        break;
+    }
   }
-
   render();
 }
 
 function updateDuckPosition() {
-  gridMatrix[duckPosition.y][duckPosition.x] = contentBeforeDuck;
+  if (contentBeforeDuck != 'worm') {
+    gridMatrix[duckPosition.y][duckPosition.x] = contentBeforeDuck;
+  }
+  else {
+    gridMatrix[duckPosition.y][duckPosition.x] = '';
+  }
 
+  // Logic for moving the duck when it is on a log.
   if (contentBeforeDuck === 'wood') {
     if (duckPosition.y === 1 && duckPosition.x < 8) duckPosition.x++;
     else if (duckPosition.y === 2 && duckPosition.x > 0) duckPosition.x--;
   }
 }
 
+// checks for end of game conditions
 function checkPosition() {
-  if (duckPosition.y === victoryRow) endGame('duck-arrived');
-  else if (contentBeforeDuck === 'river') endGame('duck-drowned');
-  else if (contentBeforeDuck === 'car' || contentBeforeDuck === 'bus')
+  /* if (duckPosition.y === victoryRow) endGame('duck-arrived'); 
+  if (contentBeforeDuck === 'river') { endGame('duck-drowned');}
+  else if (contentBeforeDuck === 'car' || contentBeforeDuck === 'bus') {
     endGame('duck-hit');
+  } */
+
+  //Check if the player is touching the worm
+  if (contentBeforeDuck === 'worm' && hasWorm == false) {
+    console.log("caught the worm!");
+    hasWorm = true;
+    stunPlayer();
+  }
+
+  if (contentBeforeDuck === 'home' && hasWorm == true) {
+    endGame('duck-arrived');
+  }
+  /* handles stunning the player when they touch spikes. 
+  Note: cooldown currently affects all spikes, not just the one the player touched */
+  if (contentBeforeDuck === 'spikes' && !stunOnCooldown) {
+    dropWorm();
+    stunPlayer();
+  }
+}
+
+function dropWorm() {
+  hasWorm = false;
+  gridMatrix[5][6] = 'worm';
+}
+
+function stunPlayer() {
+  stunned = true;
+  stunOnCooldown = true;
+  //Note: both timers are triggered simultaneously, not one after the other.
+  setTimeout(function() {
+    stunned = false;
+  }, stunDuration * 1000);
+
+  setTimeout(function() {
+    stunOnCooldown = false;
+  }, (stunDuration + stunCooldownDuration) * 1000);
 }
 
 // -------------------
 // GAME ANIMATION
 // -------------------
+
+//moves cars and logs to the right when they reach the edge.
 function moveRight(gridRowIndex) {
   // Get all of the cells in the current row
   const currentRow = gridMatrix[gridRowIndex];
@@ -133,6 +177,7 @@ function moveRight(gridRowIndex) {
   currentRow.unshift(lastElement);
 }
 
+//moves cars and logs to the left when they reach the edge.
 function moveLeft(gridRowIndex) {
   const currentRow = gridMatrix[gridRowIndex];
   const firstElement = currentRow.shift();
@@ -141,13 +186,13 @@ function moveLeft(gridRowIndex) {
 
 function animateGame() {
   // Animate river:
-  moveRight(1);
-  moveLeft(2);
+  /*moveRight(1);
+  moveLeft(2); */
 
   // Animate road:
-  moveRight(4);
+  /*moveRight(4);
   moveRight(5);
-  moveRight(6);
+  moveRight(6); */
 }
 
 // -------------------

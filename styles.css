@@ -35,10 +35,12 @@ h3 {
     font-family:monospace;
     font-size: 18px;
     text-align: center;
+    margin: 10px;
 }
 
 p {
     font-family:monospace;
+    text-align: center;
     font-size: 25px;
     margin: 0px;
     line-height: 35px;
@@ -122,11 +124,7 @@ font-size: 30px;
 .about-text-sections {
     width: 1000px;
     margin: 50px;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    line-height: 75px;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 hr.rounded {
@@ -269,7 +267,7 @@ footer a{
 }
 
 .game-container {
-    width: 438px;
+    width: 627px;
     margin: auto;
 }
 
@@ -293,8 +291,8 @@ h1 {
 }
 
 .grid {
-    width: calc(48px * 9); /* change multiplier based on grid row count */
-    height: calc(48px * 9); /* change multiplier based on game column count */
+    width: calc(48px * 13); /* change multiplier based on grid column count */
+    height: calc(48px * 11); /* change multiplier based on game row count */
     display: flex;
     flex-wrap: wrap;
 }
@@ -334,6 +332,34 @@ h1 {
 
 .wood {
     background-image: url('./images/game/wood.png');
+}
+
+.wall {
+    outline: none;
+    border-top: 1px white;
+    border-bottom: 1px white;
+    background-color: black;
+}
+
+.worm {
+    outline: none;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    background-color: pink;
+}
+
+.spikes {
+    outline: none;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    background-color: white;
+}
+
+.home {
+    outline: none;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    background-color: green;
 }
 
 
