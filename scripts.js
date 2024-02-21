@@ -27,14 +27,16 @@ const gridMatrix = [
 
 // Initialise variables that control the game "settings"
 const victoryRow = 0;
-const roadRows = [5, 6, 7, 8];
-const riverRows = [0, 1, 2, 3];
+const roadRows = [5, 6, 7, 8, 9, 10];
+const riverRows = [0, 1, 2, 3, 4];
 const duckPosition = { x: 11, y: 10 };
+const spikesArray = [];
 let contentBeforeDuck = '';
 let time = 60;
 let stunned = false;
 let stunOnCooldown = false;
 let hasWorm = false;
+let spikesUp = false;
 
 function drawGrid() {
   grid.innerHTML = '';
@@ -148,6 +150,37 @@ function dropWorm() {
   gridMatrix[5][6] = 'worm';
 }
 
+// temporary solution
+function recordSpikes() {
+
+  for(let i = 0; i < gridMatrix.length; i++) {
+    let item = gridMatrix[i];
+    for(let j = 0; j < item.length; j++) {
+      if (item[j] === 'spikes') {
+        let newItem = {x: j, y: i}; 
+        spikesArray.push(newItem);
+      }
+    } 
+  }
+  console.log(spikesArray);
+}
+
+// temporary solution
+function changeSpikes() {
+  if (spikesUp) {
+    spikesUp = false;
+    spikesArray.forEach(element => {
+      gridMatrix[element.y][element.x] = "spikesDown";
+    });
+  }
+  else {
+    spikesUp = true;
+    spikesArray.forEach(element => {
+      gridMatrix[element.y][element.x] = "spikes";
+    });
+  }
+}
+
 function stunPlayer() {
   stunned = true;
   stunOnCooldown = true;
@@ -245,7 +278,9 @@ const renderLoop = setInterval(function () {
 }, 600);
 
 const countdownLoop = setInterval(countdown, 1000);
+const spikeLoop = setInterval(changeSpikes, 2000);
 
+recordSpikes();
 document.addEventListener('keyup', moveDuck);
 playAgainBtn.addEventListener('click', function () {
   location.reload();

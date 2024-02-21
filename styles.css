@@ -105,13 +105,13 @@ p {
 }
   
 #intro-text {
-width: 450px;
-margin: 50px;
-text-align: center;
-justify-content: center;
-align-items: center;
-line-height: 75px;
-font-size: 30px;
+    width: 450px;
+    margin: auto 50px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    line-height: 75px;
+    font-size: 30px;
 }
 
 #about-intro-img {
@@ -123,7 +123,7 @@ font-size: 30px;
 
 .about-text-sections {
     width: 1000px;
-    margin: 50px;
+    margin: auto 50px;
     font-size: 25px;
 }
 
@@ -349,6 +349,13 @@ h1 {
 }
 
 .spikes {
+    outline: none;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    background-color: red;
+}
+
+.spikesDown {
     outline: none;
     border-top: 1px dashed white;
     border-bottom: 1px dashed white;
