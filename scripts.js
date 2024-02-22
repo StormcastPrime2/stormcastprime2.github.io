@@ -12,7 +12,7 @@ const stunCooldownDuration = 1; // in seconds
 
 // Nested Array
 const gridMatrix = [
-  ['home', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
+  ['birdhome', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
   ['wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
   ['', '', 'spikes', '', '', '', 'spikes', '', '', '', '', '', ''],
   ['', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall', 'wall'],
@@ -22,20 +22,24 @@ const gridMatrix = [
   ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall'],
   ['', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
   ['wall', '', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-  ['', '', '', '', '', 'spikes', '', '', '', '', '', '', 'home'],
+  ['', '', '', '', '', 'spikes', '', '', '', '', '', '', 'molehome'],
 ];
 
 // Initialise variables that control the game "settings"
 const victoryRow = 0;
 const roadRows = [5, 6, 7, 8, 9, 10];
 const riverRows = [0, 1, 2, 3, 4];
-const duckPosition = { x: 11, y: 10 };
+const molePosition = { x: 11, y: 10 };
+const birdPosition = { x: 1, y: 0 };
 const spikesArray = [];
-let contentBeforeDuck = '';
+let contentBeforeMole = '';
+let contentBeforeBird = '';
 let time = 60;
-let stunned = false;
-let stunOnCooldown = false;
-let hasWorm = false;
+let moleStunned = false;
+let birdStunned = false;
+let moleStunCooldown = false;
+let birdStunCooldown = false;
+let hasWorm = '';
 let spikesUp = false;
 
 function drawGrid() {
@@ -64,84 +68,147 @@ function drawGrid() {
 }
 
 // -------------------
-// DUCK FUNCTIONS
+// MOLE FUNCTIONS
 // -------------------
-function placeDuck() {
-  contentBeforeDuck = gridMatrix[duckPosition.y][duckPosition.x];
-  gridMatrix[duckPosition.y][duckPosition.x] = 'duck';
+function placeMole() {
+  contentBeforeMole = gridMatrix[molePosition.y][molePosition.x];
+  gridMatrix[molePosition.y][molePosition.x] = 'mole';
 }
 
-function moveDuck(event) {
+function movePlayer(event) {
   const key = event.key;
   //console.log(key);
-  gridMatrix[duckPosition.y][duckPosition.x] = contentBeforeDuck;
+  gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
+  gridMatrix[birdPosition.y][birdPosition.x] = contentBeforeBird;
   // arrows and "WASD"
-  // includes checks to ensure duck does not move out of bounds.
-  if (!stunned) {
+  // includes checks to ensure mole does not move out of bounds.
+  if (!moleStunned) {
     switch (key) {
       case 'ArrowUp':
-      case 'w':
-      case 'W':
-        if (duckPosition.y > 0 && (gridMatrix[duckPosition.y - 1][duckPosition.x] != 'wall')) duckPosition.y--;
+        if (molePosition.y > 0 && (gridMatrix[molePosition.y - 1][molePosition.x] != 'wall')) molePosition.y--;
         break;
       case 'ArrowDown':
-      case 's':
-      case 'S':
-        if (duckPosition.y < 10 && (gridMatrix[duckPosition.y + 1][duckPosition.x] != 'wall')) duckPosition.y++;
+        if (molePosition.y < 10 && (gridMatrix[molePosition.y + 1][molePosition.x] != 'wall')) molePosition.y++;
         break;
       case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        if (duckPosition.x > 0 && (gridMatrix[duckPosition.y][duckPosition.x - 1] != 'wall')) duckPosition.x--;
+        if (molePosition.x > 0 && (gridMatrix[molePosition.y][molePosition.x - 1] != 'wall')) molePosition.x--;
         break;
       case 'ArrowRight':
+        if (molePosition.x < 12 && (gridMatrix[molePosition.y][molePosition.x + 1] != 'wall')) molePosition.x++;
+        break;
+    }
+  }
+  if (!birdStunned) {
+    switch (key) {
+      case 'w':
+      case 'W':
+        if (birdPosition.y > 0 && (gridMatrix[birdPosition.y - 1][birdPosition.x] != 'wall')) birdPosition.y--;
+        break;
+      case 's':
+      case 'S':
+        if (birdPosition.y < 10 && (gridMatrix[birdPosition.y + 1][birdPosition.x] != 'wall')) birdPosition.y++;
+        break;
+      case 'a':
+      case 'A':
+        if (birdPosition.x > 0 && (gridMatrix[birdPosition.y][birdPosition.x - 1] != 'wall')) birdPosition.x--;
+        break;
       case 'd':
       case 'D':
-        if (duckPosition.x < 12 && (gridMatrix[duckPosition.y][duckPosition.x + 1] != 'wall')) duckPosition.x++;
+        if (birdPosition.x < 12 && (gridMatrix[birdPosition.y][birdPosition.x + 1] != 'wall')) birdPosition.x++;
         break;
     }
   }
   render();
 }
 
-function updateDuckPosition() {
-  if (contentBeforeDuck != 'worm') {
-    gridMatrix[duckPosition.y][duckPosition.x] = contentBeforeDuck;
+function updateMolePosition() {
+  if (contentBeforeMole != 'worm') {
+    gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
   }
   else {
-    gridMatrix[duckPosition.y][duckPosition.x] = '';
+    gridMatrix[molePosition.y][molePosition.x] = '';
   }
 
-  // Logic for moving the duck when it is on a log.
-  if (contentBeforeDuck === 'wood') {
-    if (duckPosition.y === 1 && duckPosition.x < 8) duckPosition.x++;
-    else if (duckPosition.y === 2 && duckPosition.x > 0) duckPosition.x--;
+  // Logic for moving the mole when it is on a log.
+  if (contentBeforeMole === 'wood') {
+    if (molePosition.y === 1 && molePosition.x < 8) molePosition.x++;
+    else if (molePosition.y === 2 && molePosition.x > 0) molePosition.x--;
   }
 }
 
 // checks for end of game conditions
-function checkPosition() {
-  /* if (duckPosition.y === victoryRow) endGame('duck-arrived'); 
-  if (contentBeforeDuck === 'river') { endGame('duck-drowned');}
-  else if (contentBeforeDuck === 'car' || contentBeforeDuck === 'bus') {
-    endGame('duck-hit');
+function checkMolePosition() {
+  /* if (molePosition.y === victoryRow) endGame('mole-arrived'); 
+  if (contentBeforeMole === 'river') { endGame('mole-drowned');}
+  else if (contentBeforeMole === 'car' || contentBeforeMole === 'bus') {
+    endGame('mole-hit');
   } */
 
   //Check if the player is touching the worm
-  if (contentBeforeDuck === 'worm' && hasWorm == false) {
+  if (contentBeforeMole === 'worm' && hasWorm !== 'mole') {
     console.log("caught the worm!");
-    hasWorm = true;
-    stunPlayer();
+    hasWorm = 'mole';
+    stunPlayer(true);
   }
 
-  if (contentBeforeDuck === 'home' && hasWorm == true) {
-    endGame('duck-arrived');
+  if (contentBeforeMole === 'molehome' && hasWorm === 'mole') {
+    endGame('mole-arrived');
   }
   /* handles stunning the player when they touch spikes. 
   Note: cooldown currently affects all spikes, not just the one the player touched */
-  if (contentBeforeDuck === 'spikes' && !stunOnCooldown) {
+  if (contentBeforeMole === 'spikes' && !moleStunCooldown) {
     dropWorm();
+    stunPlayer(true);
+  }
+}
+
+// -------------------
+// BIRD FUNCTIONS
+// -------------------
+
+function placeBird() {
+  contentBeforeBird = gridMatrix[birdPosition.y][birdPosition.x];
+  gridMatrix[birdPosition.y][birdPosition.x] = 'bird';
+}
+
+function updateBirdPosition() {
+  if (contentBeforeBird != 'worm') {
+    gridMatrix[birdPosition.y][birdPosition.x] = contentBeforeBird;
+  }
+  else {
+    gridMatrix[birdPosition.y][birdPosition.x] = '';
+  }
+
+  // Logic for moving the mole when it is on a log.
+  if (contentBeforeBird === 'wood') {
+    if (birdPosition.y === 1 && birdPosition.x < 8) birdPosition.x++;
+    else if (birdPosition.y === 2 && birdPosition.x > 0) birdPosition.x--;
+  }
+}
+
+// checks for end of game conditions
+function checkBirdPosition() {
+  /* if (molePosition.y === victoryRow) endGame('mole-arrived'); 
+  if (contentBeforeMole === 'river') { endGame('mole-drowned');}
+  else if (contentBeforeMole === 'car' || contentBeforeMole === 'bus') {
+    endGame('mole-hit');
+  } */
+
+  //Check if the player is touching the worm
+  if (contentBeforeBird === 'worm' && hasWorm !== 'bird') {
+    console.log("caught the worm!");
+    hasWorm = 'bird';
     stunPlayer();
+  }
+
+  if (contentBeforeBird === 'birdhome' && hasWorm === 'bird') {
+    endGame('mole-arrived');
+  }
+  /* handles stunning the player when they touch spikes. 
+  Note: cooldown currently affects all spikes, not just the one the player touched */
+  if (contentBeforeBird === 'spikes' && !birdStunCooldown) {
+    dropWorm();
+    stunPlayer(false);
   }
 }
 
@@ -181,16 +248,16 @@ function changeSpikes() {
   }
 }
 
-function stunPlayer() {
-  stunned = true;
-  stunOnCooldown = true;
+function stunPlayer(stunMole) {
+  stunMole ? moleStunned = true : birdStunned = true;
+  stunMole ? moleStunCooldown = true : birdStunCooldown = true;
   //Note: both timers are triggered simultaneously, not one after the other.
   setTimeout(function() {
-    stunned = false;
+    stunMole ? moleStunned = false : birdStunned = false;
   }, stunDuration * 1000);
 
   setTimeout(function() {
-    stunOnCooldown = false;
+    stunMole ? moleStunCooldown = false : birdStunCooldown = false;
   }, (stunDuration + stunCooldownDuration) * 1000);
 }
 
@@ -233,19 +300,19 @@ function animateGame() {
 // -------------------
 function endGame(reason) {
   // Victory
-  if (reason === 'duck-arrived') {
+  if (reason === 'mole-arrived') {
     endGameText.innerHTML = 'YOU<br>WIN!';
     endGameScreen.classList.add('win');
   }
 
-  gridMatrix[duckPosition.y][duckPosition.x] = reason;
+  gridMatrix[molePosition.y][molePosition.x] = reason;
 
   // Stop the countdown timer
   clearInterval(countdownLoop);
   // Stop the game loop
   clearInterval(renderLoop);
-  // Stop the player from being able to control the duck
-  document.removeEventListener('keyup', moveDuck);
+  // Stop the player from being able to control the mole
+  document.removeEventListener('keyup', movePlayer);
   // Display the game over screen
   endGameScreen.classList.remove('hidden');
 }
@@ -265,14 +332,17 @@ function countdown() {
 // RUNNING THE GAME
 
 function render() {
-  placeDuck();
-  checkPosition();
+  placeMole();
+  placeBird();
+  checkMolePosition();
+  checkBirdPosition();
   drawGrid();
 }
 
 // anonymous function
 const renderLoop = setInterval(function () {
-  updateDuckPosition();
+  updateMolePosition();
+  updateBirdPosition();
   animateGame();
   render();
 }, 600);
@@ -281,7 +351,8 @@ const countdownLoop = setInterval(countdown, 1000);
 const spikeLoop = setInterval(changeSpikes, 2000);
 
 recordSpikes();
-document.addEventListener('keyup', moveDuck);
+document.addEventListener('keyup', movePlayer);
+
 playAgainBtn.addEventListener('click', function () {
   location.reload();
 });

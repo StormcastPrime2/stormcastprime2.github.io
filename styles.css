@@ -362,7 +362,14 @@ h1 {
     background-color: white;
 }
 
-.home {
+.birdhome {
+    outline: none;
+    border-top: 1px dashed white;
+    border-bottom: 1px dashed white;
+    background-color: green;
+}
+
+.molehome {
     outline: none;
     border-top: 1px dashed white;
     border-bottom: 1px dashed white;
@@ -370,25 +377,29 @@ h1 {
 }
 
 
-.duck {
+.mole {
     background-image: url('./images/game/duck-walk.gif');
 }
 
-.river.duck {
+.river.mole {
     background-image: url('./images/game/duck-walk.gif'), url('images/game/wood.png');
 }
 
 .time-up,
-.duck-arrived {
+.mole-arrived {
     background-image: url('./images/game/duck-standing.png');
 }
 
-.duck-hit {
+.mole-hit {
     background-image: url('./images/game/duck-hit.png');
 }
 
-.duck-drowned {
+.mole-drowned {
     background-image: url('./images/game/duck-drowned.png');
+}
+
+.bird {
+    background-image: url('./images/game/car.png');
 }
 
 /* # Game over */
