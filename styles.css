@@ -376,6 +376,14 @@ h1 {
     background-color: green;
 }
 
+.drill {
+    background-image: url('./images/game/wood.png');
+}
+
+.egg {
+    background-image: url('./images/game/duck-dead.png');
+}
+
 
 .mole {
     background-image: url('./images/game/duck-walk.gif');

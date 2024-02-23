@@ -7,8 +7,7 @@ const timer = document.querySelector('.timer');
 const endGameScreen = document.querySelector('.end-game-screen');
 const endGameText = document.querySelector('.end-game-text');
 const playAgainBtn = document.querySelector('.play-again');
-const stunDuration = 3; // in seconds
-const stunCooldownDuration = 1; // in seconds
+const delay = async (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms)); 
 
 // Nested Array
 const gridMatrix = [
@@ -32,15 +31,22 @@ const riverRows = [0, 1, 2, 3, 4];
 const molePosition = { x: 11, y: 10 };
 const birdPosition = { x: 1, y: 0 };
 const spikesArray = [];
+const stunDuration = 3; // in seconds
+const stunCdLength = 1; // in seconds
+const shootCdDuration = 3; // in seconds
+const projTickDelay = 0.3; //delay between projectile moving up or down one tile
 let contentBeforeMole = '';
 let contentBeforeBird = '';
 let time = 60;
 let moleStunned = false;
 let birdStunned = false;
-let moleStunCooldown = false;
-let birdStunCooldown = false;
+let moleStunCd = false;
+let birdStunCd = false;
+let moleShootCd = false;
+let birdShootCd = false;
 let hasWorm = '';
 let spikesUp = false;
+let projCollide = false; // used to destroy both projectiles if they hit each other
 
 function drawGrid() {
   grid.innerHTML = '';
@@ -75,7 +81,7 @@ function placeMole() {
   gridMatrix[molePosition.y][molePosition.x] = 'mole';
 }
 
-function movePlayer(event) {
+function playerInput(event) {
   const key = event.key;
   //console.log(key);
   gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
@@ -95,6 +101,11 @@ function movePlayer(event) {
         break;
       case 'ArrowRight':
         if (molePosition.x < 12 && (gridMatrix[molePosition.y][molePosition.x + 1] != 'wall')) molePosition.x++;
+        break;
+      case '0':
+        if (!moleShootCd) {
+          moleShoot();
+        } 
         break;
     }
   }
@@ -116,6 +127,12 @@ function movePlayer(event) {
       case 'D':
         if (birdPosition.x < 12 && (gridMatrix[birdPosition.y][birdPosition.x + 1] != 'wall')) birdPosition.x++;
         break;
+      case 'e':
+      case 'E':
+        if (!birdShootCd) {
+          birdShoot();
+        } 
+        break;
     }
   }
   render();
@@ -130,10 +147,10 @@ function updateMolePosition() {
   }
 
   // Logic for moving the mole when it is on a log.
-  if (contentBeforeMole === 'wood') {
+  /* if (contentBeforeMole === 'wood') {
     if (molePosition.y === 1 && molePosition.x < 8) molePosition.x++;
     else if (molePosition.y === 2 && molePosition.x > 0) molePosition.x--;
-  }
+  } */
 }
 
 // checks for end of game conditions
@@ -148,7 +165,6 @@ function checkMolePosition() {
   if (contentBeforeMole === 'worm' && hasWorm !== 'mole') {
     console.log("caught the worm!");
     hasWorm = 'mole';
-    stunPlayer(true);
   }
 
   if (contentBeforeMole === 'molehome' && hasWorm === 'mole') {
@@ -156,8 +172,7 @@ function checkMolePosition() {
   }
   /* handles stunning the player when they touch spikes. 
   Note: cooldown currently affects all spikes, not just the one the player touched */
-  if (contentBeforeMole === 'spikes' && !moleStunCooldown) {
-    dropWorm();
+  if (contentBeforeMole === 'spikes' && !moleStunCd) {
     stunPlayer(true);
   }
 }
@@ -180,10 +195,10 @@ function updateBirdPosition() {
   }
 
   // Logic for moving the mole when it is on a log.
-  if (contentBeforeBird === 'wood') {
+  /* if (contentBeforeBird === 'wood') {
     if (birdPosition.y === 1 && birdPosition.x < 8) birdPosition.x++;
     else if (birdPosition.y === 2 && birdPosition.x > 0) birdPosition.x--;
-  }
+  } */
 }
 
 // checks for end of game conditions
@@ -198,22 +213,21 @@ function checkBirdPosition() {
   if (contentBeforeBird === 'worm' && hasWorm !== 'bird') {
     console.log("caught the worm!");
     hasWorm = 'bird';
-    stunPlayer();
   }
 
   if (contentBeforeBird === 'birdhome' && hasWorm === 'bird') {
     endGame('mole-arrived');
   }
   /* handles stunning the player when they touch spikes. 
-  Note: cooldown currently affects all spikes, not just the one the player touched */
-  if (contentBeforeBird === 'spikes' && !birdStunCooldown) {
-    dropWorm();
+  Note: cooldown currently affects all spikes, not just the one the player touched 
+  Note: Currently, if any player gets hurt, whoever has the worm drops it. This is a bug.*/
+  if (contentBeforeBird === 'spikes' && !birdStunCd) {
     stunPlayer(false);
   }
 }
 
 function dropWorm() {
-  hasWorm = false;
+  hasWorm = '';
   gridMatrix[5][6] = 'worm';
 }
 
@@ -248,17 +262,88 @@ function changeSpikes() {
   }
 }
 
+async function moleShoot() {
+  moleShootCd = true;
+  setTimeout(function() {
+    moleShootCd = false;
+  }, shootCdDuration * 1000);
+
+  let startX = molePosition.x;
+  let prevYContent = '';
+  let i = molePosition.y - 1;
+  for (i; i >= 0; i--) {
+    gridMatrix[i+1][startX] = prevYContent;
+    if (gridMatrix[i][startX] === 'bird') {
+      stunPlayer(false);
+      break;
+    }
+    else if (gridMatrix[i][startX] === 'egg') {
+      projCollide = true;
+      break;
+    }
+    else if (projCollide) {
+      projCollide = false;
+      break;
+    }
+    
+    prevYContent = gridMatrix[i][startX];
+    gridMatrix[i][startX] = 'drill';
+    await delay(projTickDelay * 1000); 
+  }
+  gridMatrix[i+1][startX] = prevYContent;
+}
+
+async function birdShoot() {
+  birdShootCd = true;
+  setTimeout(function() {
+    birdShootCd = false;
+  }, shootCdDuration * 1000);
+
+  let startX = birdPosition.x;
+  let prevYContent = '';
+  let i = birdPosition.y + 1;
+  for (i; i < gridMatrix.length; i++) {
+    gridMatrix[i-1][startX] = prevYContent;
+    if (gridMatrix[i][startX] === 'mole') {
+      stunPlayer(true);
+      break;
+    }
+    else if (gridMatrix[i][startX] === 'drill' || projCollide) {
+      projCollide = true;
+      break;
+    }
+    else if (projCollide) {
+      projCollide = false;
+      break;
+    }
+    
+    prevYContent = gridMatrix[i][startX];
+    gridMatrix[i][startX] = 'egg';
+    await delay(projTickDelay * 1000); 
+  }
+  gridMatrix[i-1][startX] = prevYContent;
+}
+
+
+
 function stunPlayer(stunMole) {
+  console.log(hasWorm + " has the worm");
+  if (hasWorm == 'mole' && stunMole == true) { 
+    dropWorm(); 
+  }
+  else if (hasWorm == 'bird' && stunMole == false) { 
+    dropWorm(); 
+  }
   stunMole ? moleStunned = true : birdStunned = true;
-  stunMole ? moleStunCooldown = true : birdStunCooldown = true;
+  stunMole ? moleStunCd = true : birdStunCd = true;
   //Note: both timers are triggered simultaneously, not one after the other.
   setTimeout(function() {
     stunMole ? moleStunned = false : birdStunned = false;
   }, stunDuration * 1000);
 
   setTimeout(function() {
-    stunMole ? moleStunCooldown = false : birdStunCooldown = false;
-  }, (stunDuration + stunCooldownDuration) * 1000);
+    stunMole ? moleStunCd = false : birdStunCd = false;
+  }, (stunDuration + stunCdLength) * 1000);
 }
 
 // -------------------
@@ -312,7 +397,7 @@ function endGame(reason) {
   // Stop the game loop
   clearInterval(renderLoop);
   // Stop the player from being able to control the mole
-  document.removeEventListener('keyup', movePlayer);
+  document.removeEventListener('keyup', playerInput);
   // Display the game over screen
   endGameScreen.classList.remove('hidden');
 }
@@ -345,13 +430,13 @@ const renderLoop = setInterval(function () {
   updateBirdPosition();
   animateGame();
   render();
-}, 600);
+}, 300);
 
-const countdownLoop = setInterval(countdown, 1000);
+//const countdownLoop = setInterval(countdown, 1000);
 const spikeLoop = setInterval(changeSpikes, 2000);
 
 recordSpikes();
-document.addEventListener('keyup', movePlayer);
+document.addEventListener('keyup', playerInput);
 
 playAgainBtn.addEventListener('click', function () {
   location.reload();
