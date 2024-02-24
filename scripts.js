@@ -11,16 +11,16 @@ const delay = async (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms
 
 // Nested Array
 const gridMatrix = [
-  ['birdhome', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
-  ['wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-  ['', '', 'spikes', '', '', '', 'spikes', '', '', '', '', '', ''],
-  ['', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall', 'wall'],
-  ['', '', 'spikes', '', '', '', 'spikes', '', '', '', '', '', ''],
-  ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'worm', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-  ['', '', '', '', '', '', '', 'spikes', '', '', '', '', ''],
-  ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', '', 'wall', 'wall', 'wall', 'wall'],
+  ['birdhome', '', '', '', '', 'spikes', '', '', '', '', '', '', ''],
+  ['cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', '', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall'],
+  ['', '', 'spikes', '', '', '', '', 'spikes', '', '', '', '', ''],
+  ['', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', '', 'cloudwall', 'cloudwall'],
+  ['', '', 'spikes', '', '', '', '', '', '', 'spikes', '', '', ''],
+  ['dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'worm', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall'],
+  ['', '', 'spikes', '', '', '', '', 'spikes', '', '', '', '', ''],
+  ['', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', '', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall'],
   ['', '', 'spikes', '', '', '', '', '', '', '', '', '', ''],
-  ['wall', '', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+  ['dirtwall', '', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall', 'dirtwall'],
   ['', '', '', '', '', 'spikes', '', '', '', '', '', '', 'molehome'],
 ];
 
@@ -32,9 +32,9 @@ const molePosition = { x: 11, y: 10 };
 const birdPosition = { x: 1, y: 0 };
 const spikesArray = [];
 const stunDuration = 3; // in seconds
-const stunCdLength = 1; // in seconds
-const shootCdDuration = 3; // in seconds
-const projTickDelay = 0.3; //delay between projectile moving up or down one tile
+const stunCdLength = 2; // in seconds
+const shootCdDuration = 1; // in seconds
+const projTickDelay = 0.1; //delay between projectile moving up or down one tile
 let contentBeforeMole = '';
 let contentBeforeBird = '';
 let time = 60;
@@ -78,29 +78,43 @@ function drawGrid() {
 // -------------------
 function placeMole() {
   contentBeforeMole = gridMatrix[molePosition.y][molePosition.x];
-  gridMatrix[molePosition.y][molePosition.x] = 'mole';
+  if (moleStunned) {
+    gridMatrix[molePosition.y][molePosition.x] = 'mole-hit';
+  }
+  else if (hasWorm == 'mole') {
+    gridMatrix[molePosition.y][molePosition.x] = 'moleWorm';
+  }
+  else {
+    gridMatrix[molePosition.y][molePosition.x] = 'mole';
+  }
+  
 }
 
 function playerInput(event) {
   const key = event.key;
   //console.log(key);
-  gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
-  gridMatrix[birdPosition.y][birdPosition.x] = contentBeforeBird;
+  if (gridMatrix[birdPosition.y][birdPosition.x] != 'mole') {
+    gridMatrix[birdPosition.y][birdPosition.x] = contentBeforeBird;
+  } 
+  if (gridMatrix[molePosition.y][molePosition.x] != 'bird') {
+    gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
+  }
+  
   // arrows and "WASD"
   // includes checks to ensure mole does not move out of bounds.
   if (!moleStunned) {
     switch (key) {
       case 'ArrowUp':
-        if (molePosition.y > 0 && (gridMatrix[molePosition.y - 1][molePosition.x] != 'wall')) molePosition.y--;
+        if (molePosition.y > 0 && !(gridMatrix[molePosition.y - 1][molePosition.x].endsWith('wall'))) molePosition.y--;
         break;
       case 'ArrowDown':
-        if (molePosition.y < 10 && (gridMatrix[molePosition.y + 1][molePosition.x] != 'wall')) molePosition.y++;
+        if (molePosition.y < 10 && !(gridMatrix[molePosition.y + 1][molePosition.x].endsWith('wall'))) molePosition.y++;
         break;
       case 'ArrowLeft':
-        if (molePosition.x > 0 && (gridMatrix[molePosition.y][molePosition.x - 1] != 'wall')) molePosition.x--;
+        if (molePosition.x > 0 && !(gridMatrix[molePosition.y][molePosition.x - 1].endsWith('wall'))) molePosition.x--;
         break;
       case 'ArrowRight':
-        if (molePosition.x < 12 && (gridMatrix[molePosition.y][molePosition.x + 1] != 'wall')) molePosition.x++;
+        if (molePosition.x < 12 && !(gridMatrix[molePosition.y][molePosition.x + 1].endsWith('wall'))) molePosition.x++;
         break;
       case '0':
         if (!moleShootCd) {
@@ -113,19 +127,19 @@ function playerInput(event) {
     switch (key) {
       case 'w':
       case 'W':
-        if (birdPosition.y > 0 && (gridMatrix[birdPosition.y - 1][birdPosition.x] != 'wall')) birdPosition.y--;
+        if (birdPosition.y > 0 && !(gridMatrix[birdPosition.y - 1][birdPosition.x].endsWith('wall'))) birdPosition.y--;
         break;
       case 's':
       case 'S':
-        if (birdPosition.y < 10 && (gridMatrix[birdPosition.y + 1][birdPosition.x] != 'wall')) birdPosition.y++;
+        if (birdPosition.y < 10 && !(gridMatrix[birdPosition.y + 1][birdPosition.x].endsWith('wall'))) birdPosition.y++;
         break;
       case 'a':
       case 'A':
-        if (birdPosition.x > 0 && (gridMatrix[birdPosition.y][birdPosition.x - 1] != 'wall')) birdPosition.x--;
+        if (birdPosition.x > 0 && !(gridMatrix[birdPosition.y][birdPosition.x - 1].endsWith('wall'))) birdPosition.x--;
         break;
       case 'd':
       case 'D':
-        if (birdPosition.x < 12 && (gridMatrix[birdPosition.y][birdPosition.x + 1] != 'wall')) birdPosition.x++;
+        if (birdPosition.x < 12 && !(gridMatrix[birdPosition.y][birdPosition.x + 1].endsWith('wall'))) birdPosition.x++;
         break;
       case 'e':
       case 'E':
@@ -135,11 +149,15 @@ function playerInput(event) {
         break;
     }
   }
+
+  if(key == 'h') {
+    console.log(gridMatrix);
+  }
   render();
 }
 
 function updateMolePosition() {
-  if (contentBeforeMole != 'worm') {
+  if (contentBeforeMole != 'worm' && contentBeforeMole != 'bird' && contentBeforeMole != 'mole') {
     gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
   }
   else {
@@ -183,11 +201,19 @@ function checkMolePosition() {
 
 function placeBird() {
   contentBeforeBird = gridMatrix[birdPosition.y][birdPosition.x];
-  gridMatrix[birdPosition.y][birdPosition.x] = 'bird';
+  if (birdStunned) {
+    gridMatrix[birdPosition.y][birdPosition.x] = 'bird-hit';
+  }
+  else if (hasWorm == 'bird') {
+    gridMatrix[birdPosition.y][birdPosition.x] = 'birdWorm';
+  }
+  else {
+    gridMatrix[birdPosition.y][birdPosition.x] = 'bird';
+  }
 }
 
 function updateBirdPosition() {
-  if (contentBeforeBird != 'worm') {
+  if (contentBeforeBird != 'worm' && contentBeforeMole != 'mole' && contentBeforeMole != 'bird') {
     gridMatrix[birdPosition.y][birdPosition.x] = contentBeforeBird;
   }
   else {
@@ -216,11 +242,10 @@ function checkBirdPosition() {
   }
 
   if (contentBeforeBird === 'birdhome' && hasWorm === 'bird') {
-    endGame('mole-arrived');
+    endGame('bird-arrived');
   }
   /* handles stunning the player when they touch spikes. 
-  Note: cooldown currently affects all spikes, not just the one the player touched 
-  Note: Currently, if any player gets hurt, whoever has the worm drops it. This is a bug.*/
+  Note: cooldown currently affects all spikes, not just the one the player touched */
   if (contentBeforeBird === 'spikes' && !birdStunCd) {
     stunPlayer(false);
   }
@@ -327,7 +352,6 @@ async function birdShoot() {
 
 
 function stunPlayer(stunMole) {
-  console.log(hasWorm + " has the worm");
   if (hasWorm == 'mole' && stunMole == true) { 
     dropWorm(); 
   }
@@ -386,14 +410,21 @@ function animateGame() {
 function endGame(reason) {
   // Victory
   if (reason === 'mole-arrived') {
-    endGameText.innerHTML = 'YOU<br>WIN!';
+    endGameText.innerHTML = 'MOLE<br>WINS!';
     endGameScreen.classList.add('win');
+    gridMatrix[molePosition.y][molePosition.x] = reason;
   }
 
-  gridMatrix[molePosition.y][molePosition.x] = reason;
+  if (reason === 'bird-arrived') {
+    endGameText.innerHTML = 'BIRD<br>WINS!';
+    endGameScreen.classList.add('win');
+    gridMatrix[birdPosition.y][birdPosition.x] = reason;
+  }
+
+  
 
   // Stop the countdown timer
-  clearInterval(countdownLoop);
+  //clearInterval(countdownLoop);
   // Stop the game loop
   clearInterval(renderLoop);
   // Stop the player from being able to control the mole
@@ -414,6 +445,13 @@ function countdown() {
   }
 }
 
+//ensures that the worm is replaced if returning it to its spot fails (usually because a player is standing in the spot.)
+function wormCheck() {
+  if (hasWorm == '' && gridMatrix[5][6] == '') {
+    gridMatrix[5][6] = 'worm';
+  }
+}
+
 // RUNNING THE GAME
 
 function render() {
@@ -422,6 +460,7 @@ function render() {
   checkMolePosition();
   checkBirdPosition();
   drawGrid();
+  wormCheck();
 }
 
 // anonymous function
@@ -430,7 +469,7 @@ const renderLoop = setInterval(function () {
   updateBirdPosition();
   animateGame();
   render();
-}, 300);
+}, 100);
 
 //const countdownLoop = setInterval(countdown, 1000);
 const spikeLoop = setInterval(changeSpikes, 2000);

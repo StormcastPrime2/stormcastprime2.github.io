@@ -317,9 +317,7 @@ h1 {
 
 .road {
     outline: none;
-    border-top: 1px dashed white;
-    border-bottom: 1px dashed white;
-    background-color: gray;
+    background-color: rgb(56, 28, 24);
 }
 
 .car {
@@ -334,46 +332,32 @@ h1 {
     background-image: url('./images/game/wood.png');
 }
 
-.wall {
-    outline: none;
-    border-top: 1px white;
-    border-bottom: 1px white;
-    background-color: black;
+.dirtwall {
+    background-image: url('./images/game/dirtwall.png');
+}
+
+.cloudwall {
+    background-image: url('./images/game/cloudwall.png');
 }
 
 .worm {
-    outline: none;
-    border-top: 1px dashed white;
-    border-bottom: 1px dashed white;
-    background-color: pink;
+    background-image: url('./images/game/worm.png');
 }
 
 .spikes {
-    outline: none;
-    border-top: 1px dashed white;
-    border-bottom: 1px dashed white;
-    background-color: red;
+    background-image: url('./images/game/spikesUp.png');
 }
 
 .spikesDown {
-    outline: none;
-    border-top: 1px dashed white;
-    border-bottom: 1px dashed white;
-    background-color: white;
+    background-image: url('./images/game/spikesDown.png');
 }
 
 .birdhome {
-    outline: none;
-    border-top: 1px dashed white;
-    border-bottom: 1px dashed white;
-    background-color: green;
+    background-image: url('./images/game/birdhome.png');
 }
 
 .molehome {
-    outline: none;
-    border-top: 1px dashed white;
-    border-bottom: 1px dashed white;
-    background-color: green;
+    background-image: url('./images/game/molehome.png');
 }
 
 .drill {
@@ -381,33 +365,54 @@ h1 {
 }
 
 .egg {
-    background-image: url('./images/game/duck-dead.png');
+    background-image: url('./images/game/duck-shot.png');
 }
 
 
 .mole {
-    background-image: url('./images/game/duck-walk.gif');
+    background-image: url('./images/game/moleWalk1.png');
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
-.river.mole {
-    background-image: url('./images/game/duck-walk.gif'), url('images/game/wood.png');
-}
 
-.time-up,
+
 .mole-arrived {
-    background-image: url('./images/game/duck-standing.png');
+    background-image: url('./images/game/mole-arrived.png');
+}
+
+.bird-arrived {
+    background-image: url('./images/game/bird-arrived.png');
+}
+
+.bird-hit {
+    background-image: url('./images/game/duck-hit.png');
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .mole-hit {
-    background-image: url('./images/game/duck-hit.png');
-}
-
-.mole-drowned {
-    background-image: url('./images/game/duck-drowned.png');
+    background-image: url('./images/game/mole-hit.png');
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .bird {
-    background-image: url('./images/game/car.png');
+    background-image: url('./images/game/duck-standing.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.birdWorm {
+    background-image: url('./images/game/birdWorm.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.moleWorm {
+    background-image: url('./images/game/moleWorm.png');
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 /* # Game over */
@@ -429,7 +434,7 @@ h1 {
 }
 
 .win {
-background-color: rgba(78, 241, 187, 0.7);
+background-color: rgba(78, 241, 187, 0.5);
 }
 
 .end-game-text {
