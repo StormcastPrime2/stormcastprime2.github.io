@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Alessandro Ciraolo</title>
+        <title>War of the Worm</title>
         <link rel="stylesheet" href="styles.css">
-        
+        <link rel="icon" href="./images/myicon.png">
     </head>
     <body>
 
@@ -15,39 +15,83 @@
                 <!-- <li><a href="#experience">Experience</a></li> -->
                 <li><a href="./game.html">Game</a></li>
                 <!-- <li><a href="#news">News</a></li> -->
-                <li style="float:right"><a href="#contact">Contact</a></li>
+                <!-- <li><a href="#contact">Contact</a></li> -->
             </ul>
         </nav>
-
-        <main>
-            <!-- Container element for the game board -->
-            <div class="game-container">
-                <!-- Game title and timer -->
-                <header class="game-panel">
-                <h1 style="margin-top: 100px">War of the Worm</h1>
-                <!-- <div class="score">
-                    <span>TIME</span>
-                    <span class="timer">00060</span>
-                </div> -->
-                </header>
-        
-                <main class="game-board">
-                <!-- Game grid -->
-                <div class="grid"></div>
-        
-                <!-- Game over -->
-                <div class="end-game-screen hidden">
-                    <h2 class="end-game-text">Game<br />Over</h2>
-                    <button class="btn play-again">Play Again</button>
+            <main>
+                <!-- Container element for the game board -->
+                <div class="game-container">
+                    <!-- Game title and timer -->
+                    <header class="game-panel">
+                        <h1 style="margin-top: 80px; margin-bottom: 30px;">War of the Worm</h1>
+                        <!-- <div class="score">
+                            <span>TIME</span>
+                            <span class="timer">00060</span>
+                        </div> -->
+                    </header>
+            
+                    <div class="game-board">
+                        <!-- Game grid -->
+                        <div class="grid"></div>
+                
+                        <!-- Game over -->
+                        <div class="end-game-screen hidden">
+                            <h2 class="end-game-text">Game<br />Over</h2>
+                            <button class="btn play-again">Play Again</button>
+                        </div>
+                    </div>
                 </div>
-                </main>
-            </div>
-        </main>
-        
-        <footer>
-            <span style="margin: 50px;"><a href="https://www.freepik.com/free-photo/steel-blue-abstract-background-wallpaper-image_15601163.htm#query=minimalist%20blue%20background&position=0&from_view=keyword&track=ais&uuid=5232345b-5c6f-47d8-b507-7399933f0e2d">Background Image by rawpixel.com</a> on Freepik</span>
-            <span style="margin-right: 30px;">Website made by me! Check out the code <a href="https://github.com/StormcastPrime2/Portfolio-Website">here</a></span>
-        </footer>
+
+                <div class="flex-container"> 
+                    <div class="game-text-section">
+                        <h1>Controls:</h1>
+                        <h2>Player 1 - The Bird:</h2>
+                        <p>
+                            <br />
+                            WASD: Move
+                            <br />
+                            E: Shoot Egg 
+                        </p>
+                        <hr class="rounded">
+                        <h2>Player 2 - The Mole:</h2>
+                        <p>
+                            <br />
+                            Arrow Keys: Move
+                            <br/>
+                            0 (numpad): Shoot Mud
+                            <br />
+                            (Turn on num lock!)
+                        </p>
+                        <hr class="rounded">  
+                    </div>
+                    <div class="game-text-section">
+                        <h1>How to Play:</h1>
+                        <p>
+                            <br />
+                            Both players are racing to grab the worm in the centre and return 
+                            to their home with it in their mouth so they can savour the meal. They must be 
+                            careful to avoid the spikes which will stun them and make them drop
+                            the worm! <br />
+                            <br />
+                            Each player has a trick up their sleeve to hinder their opponent:
+                            They can shoot a projectile vertically towards the other player that knocks
+                            the worm out of them and leaves their head spinning! Who will be early enough to 
+                            get the worm, and who will be left eating the dust?
+                        </p>
+                        <hr class="rounded">
+                    </div>
+                </div>
+            </main>
+            <footer>
+                <span class="footer-left">
+                    <span><a href="https://www.linkedin.com/in/alessandrociraolo/" target="_blank"><img class = "footer-img" src="./images/linkedin-icon.png" alt="LinkedIn Logo" height="35px" width="35px"></a></span>
+                    <span style="margin-left: 80px;">Reach out to me: <a href="mailto:alex.ciraolo@outlook.com">alex.ciraolo@outlook.com</a></span>
+                </span>
+                <span class="footer-right">
+                    <span style="margin: 50px; ">Website made by me! Check out the code <a href="https://github.com/StormcastPrime2/Portfolio-Website" target="_blank">here</a></span>
+                    <span style="margin-right: 30px;"><a href="https://www.freepik.com/" target="_blank">Background Image by rawpixel.com</a> on Freepik</span>
+                </span>
+            </footer>
     </body>
     <script src="scripts.js"></script>
 </html>
