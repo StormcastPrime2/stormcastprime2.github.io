@@ -27,8 +27,9 @@ h2 {
     font-family:monospace;
     word-wrap:break-word;
     font-size: 40px;
-    margin: 0px;
     text-align: center;
+    margin-top: 70px; 
+    margin-bottom: 70px;
 } 
 
 h3 {
@@ -89,6 +90,10 @@ p {
     background-color: #ddd;
 }
 
+.topnav-spacer {
+    margin-top: 100px;
+}
+
 /* .topnav a.active {
     background-color: #04AA6D;
     border-radius: 15px;
@@ -110,11 +115,8 @@ p {
 }
   
 #intro-text {
-    width: 450px;
+    max-width: 450px;
     margin: auto 50px;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
     line-height: 75px;
     font-size: 30px;
 }
@@ -124,6 +126,7 @@ p {
     object-fit: contain;
     max-width: 500px;
     max-height: 500px;
+    align-self: center;
 }
 
 .about-img {
@@ -254,10 +257,12 @@ footer {
 
 .footer-left {
     float: left;
+    margin-left: 80px;
 }
 
-.footer-right {
+.footer-right > * {
     float: right;
+    margin: 0px 30px;
 }
 
 .footer-img {
@@ -343,12 +348,12 @@ footer a{
     background-color: rgb(203, 224, 221);
 }
 
-.river {
+.sky {
     outline: none;
     background-color: lightblue;
 }
 
-.road {
+.ground {
     outline: none;
     background-color: rgb(56, 28, 24);
 }

@@ -7,9 +7,8 @@ const timer = document.querySelector('.timer');
 const endGameScreen = document.querySelector('.end-game-screen');
 const endGameText = document.querySelector('.end-game-text');
 const playAgainBtn = document.querySelector('.play-again');
-const delay = async (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms)); 
 
-// Nested Array
+// Nested Array for game grid layout
 const gridMatrix = [
   ['birdhome', '', '', '', '', 'spikes', '', '', '', '', '', '', ''],
   ['cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', '', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall', 'cloudwall'],
@@ -26,27 +25,34 @@ const gridMatrix = [
 
 // Initialise variables that control the game "settings"
 const victoryRow = 0;
-const roadRows = [5, 6, 7, 8, 9, 10];
-const riverRows = [0, 1, 2, 3, 4];
+// these two rows are only used for styling
+const groundRows = [5, 6, 7, 8, 9, 10];
+const skyRows = [0, 1, 2, 3, 4];
 const molePosition = { x: 11, y: 10 };
 const birdPosition = { x: 1, y: 0 };
 const spikesArray = [];
 const stunDuration = 3; // in seconds
 const stunCdLength = 2; // in seconds
 const shootCdDuration = 1; // in seconds
-const projTickDelay = 0.1; //delay between projectile moving up or down one tile
+const projTickDelay = 0.1; // delay between projectile moving up or down one tile
+const delay = async (ms = 1000) => new Promise(resolve => setTimeout(resolve, ms)); 
+
 let contentBeforeMole = '';
 let contentBeforeBird = '';
-let time = 60;
+let time = 60; // game timer in seconds (currently inactive)
+// stun state variables
 let moleStunned = false;
 let birdStunned = false;
+// cooldown state variables
 let moleStunCd = false;
 let birdStunCd = false;
 let moleShootCd = false;
 let birdShootCd = false;
-let hasWorm = '';
-let spikesUp = false;
+let hasWorm = ''; // which player has the worm
+let spikesUp = false; //are spikes in up or down position
 let projCollide = false; // used to destroy both projectiles if they hit each other
+
+
 
 function drawGrid() {
   grid.innerHTML = '';
@@ -58,10 +64,10 @@ function drawGrid() {
       const cellDiv = document.createElement('div');
       cellDiv.classList.add('cell');
 
-      if (riverRows.includes(gridRowIndex)) {
-        cellDiv.classList.add('river');
-      } else if (roadRows.includes(gridRowIndex)) {
-        cellDiv.classList.add('road');
+      if (skyRows.includes(gridRowIndex)) {
+        cellDiv.classList.add('sky');
+      } else if (groundRows.includes(gridRowIndex)) {
+        cellDiv.classList.add('ground');
       }
 
       if (cellContent) {
@@ -73,26 +79,16 @@ function drawGrid() {
   });
 }
 
-// -------------------
-// MOLE FUNCTIONS
-// -------------------
-function placeMole() {
-  contentBeforeMole = gridMatrix[molePosition.y][molePosition.x];
-  if (moleStunned) {
-    gridMatrix[molePosition.y][molePosition.x] = 'mole-hit';
-  }
-  else if (hasWorm == 'mole') {
-    gridMatrix[molePosition.y][molePosition.x] = 'moleWorm';
-  }
-  else {
-    gridMatrix[molePosition.y][molePosition.x] = 'mole';
-  }
-  
-}
+
+// ---------------------
+// PLAYER INPUT HANDLING
+// ---------------------
+
 
 function playerInput(event) {
   const key = event.key;
-  //console.log(key);
+
+  // Mitigates creation of 'shadow players' when two players are on same space. 
   if (gridMatrix[birdPosition.y][birdPosition.x] != 'mole') {
     gridMatrix[birdPosition.y][birdPosition.x] = contentBeforeBird;
   } 
@@ -100,7 +96,7 @@ function playerInput(event) {
     gridMatrix[molePosition.y][molePosition.x] = contentBeforeMole;
   }
   
-  // arrows and "WASD"
+  // Mole Controls (arrow keys and 0)
   // includes checks to ensure mole does not move out of bounds.
   if (!moleStunned) {
     switch (key) {
@@ -123,6 +119,9 @@ function playerInput(event) {
         break;
     }
   }
+
+  // Bird Controls (WASD and E)
+  // includes checks to ensure bird does not move out of bounds.
   if (!birdStunned) {
     switch (key) {
       case 'w':
@@ -150,11 +149,34 @@ function playerInput(event) {
     }
   }
 
+  // Debug tool
   if(key == 'h') {
     console.log(gridMatrix);
   }
   render();
 }
+
+
+// -------------------
+// MOLE FUNCTIONS
+// -------------------
+
+
+function placeMole() {
+  contentBeforeMole = gridMatrix[molePosition.y][molePosition.x];
+  if (moleStunned) {
+    gridMatrix[molePosition.y][molePosition.x] = 'mole-hit';
+  }
+  else if (hasWorm == 'mole') {
+    gridMatrix[molePosition.y][molePosition.x] = 'moleWorm';
+  }
+  else {
+    gridMatrix[molePosition.y][molePosition.x] = 'mole';
+  }
+  
+}
+
+
 
 function updateMolePosition() {
   if (contentBeforeMole != 'worm' && contentBeforeMole != 'bird' && contentBeforeMole != 'mole') {
@@ -181,7 +203,7 @@ function checkMolePosition() {
 
   //Check if the player is touching the worm
   if (contentBeforeMole === 'worm' && hasWorm !== 'mole') {
-    console.log("caught the worm!");
+
     hasWorm = 'mole';
   }
 
@@ -195,9 +217,45 @@ function checkMolePosition() {
   }
 }
 
+async function moleShoot() {
+  // Shoot cooldown handling
+  moleShootCd = true;
+  setTimeout(function() {
+    moleShootCd = false;
+  }, shootCdDuration * 1000);
+
+  // projectile movement handling
+  let startX = molePosition.x;
+  let prevYContent = '';
+  let i = molePosition.y - 1;
+  for (i; i >= 0; i--) {
+    gridMatrix[i+1][startX] = prevYContent;
+    if (gridMatrix[i][startX] === 'bird') {
+      stunPlayer(false);
+      break;
+    }
+    // these two cases handle two projectiles hitting each other - both are destroyed
+    else if (gridMatrix[i][startX] === 'egg') {
+      projCollide = true;
+      break;
+    }
+    else if (projCollide) {
+      projCollide = false;
+      break;
+    }
+    
+    prevYContent = gridMatrix[i][startX];
+    gridMatrix[i][startX] = 'drill';
+    await delay(projTickDelay * 1000); 
+  }
+  gridMatrix[i+1][startX] = prevYContent;
+}
+
+
 // -------------------
 // BIRD FUNCTIONS
 // -------------------
+
 
 function placeBird() {
   contentBeforeBird = gridMatrix[birdPosition.y][birdPosition.x];
@@ -237,7 +295,6 @@ function checkBirdPosition() {
 
   //Check if the player is touching the worm
   if (contentBeforeBird === 'worm' && hasWorm !== 'bird') {
-    console.log("caught the worm!");
     hasWorm = 'bird';
   }
 
@@ -251,79 +308,14 @@ function checkBirdPosition() {
   }
 }
 
-function dropWorm() {
-  hasWorm = '';
-  gridMatrix[5][6] = 'worm';
-}
-
-// temporary solution
-function recordSpikes() {
-
-  for(let i = 0; i < gridMatrix.length; i++) {
-    let item = gridMatrix[i];
-    for(let j = 0; j < item.length; j++) {
-      if (item[j] === 'spikes') {
-        let newItem = {x: j, y: i}; 
-        spikesArray.push(newItem);
-      }
-    } 
-  }
-  console.log(spikesArray);
-}
-
-// temporary solution
-function changeSpikes() {
-  if (spikesUp) {
-    spikesUp = false;
-    spikesArray.forEach(element => {
-      gridMatrix[element.y][element.x] = "spikesDown";
-    });
-  }
-  else {
-    spikesUp = true;
-    spikesArray.forEach(element => {
-      gridMatrix[element.y][element.x] = "spikes";
-    });
-  }
-}
-
-async function moleShoot() {
-  moleShootCd = true;
-  setTimeout(function() {
-    moleShootCd = false;
-  }, shootCdDuration * 1000);
-
-  let startX = molePosition.x;
-  let prevYContent = '';
-  let i = molePosition.y - 1;
-  for (i; i >= 0; i--) {
-    gridMatrix[i+1][startX] = prevYContent;
-    if (gridMatrix[i][startX] === 'bird') {
-      stunPlayer(false);
-      break;
-    }
-    else if (gridMatrix[i][startX] === 'egg') {
-      projCollide = true;
-      break;
-    }
-    else if (projCollide) {
-      projCollide = false;
-      break;
-    }
-    
-    prevYContent = gridMatrix[i][startX];
-    gridMatrix[i][startX] = 'drill';
-    await delay(projTickDelay * 1000); 
-  }
-  gridMatrix[i+1][startX] = prevYContent;
-}
-
 async function birdShoot() {
+  // Shoot cooldown handling
   birdShootCd = true;
   setTimeout(function() {
     birdShootCd = false;
   }, shootCdDuration * 1000);
 
+  // projectile movement handling
   let startX = birdPosition.x;
   let prevYContent = '';
   let i = birdPosition.y + 1;
@@ -333,6 +325,7 @@ async function birdShoot() {
       stunPlayer(true);
       break;
     }
+    // these two cases handle two projectiles hitting each other - both are destroyed
     else if (gridMatrix[i][startX] === 'drill' || projCollide) {
       projCollide = true;
       break;
@@ -350,7 +343,56 @@ async function birdShoot() {
 }
 
 
+// -------------------
+// MECHANICS HANDLING
+// -------------------
 
+
+function dropWorm() {
+  hasWorm = '';
+  // worm home position
+  gridMatrix[5][6] = 'worm';
+}
+
+/* ensures that the worm is replaced if returning it to its spot fails 
+(usually because a player is standing in the spot.) */
+function wormCheck() {
+  if (hasWorm == '' && gridMatrix[5][6] == '') {
+    gridMatrix[5][6] = 'worm';
+  }
+}
+
+// locates all spikes at game start so they can be moved up and down
+// This is used to provide support for random grid gen if implemented in future
+function recordSpikes() {
+  for(let i = 0; i < gridMatrix.length; i++) {
+    let item = gridMatrix[i];
+    for(let j = 0; j < item.length; j++) {
+      if (item[j] === 'spikes') {
+        let newItem = {x: j, y: i}; 
+        spikesArray.push(newItem);
+      }
+    } 
+  }
+}
+
+function changeSpikes() {
+  if (spikesUp) {
+    spikesUp = false;
+    spikesArray.forEach(element => {
+      gridMatrix[element.y][element.x] = "spikesDown";
+    });
+  }
+  else {
+    spikesUp = true;
+    spikesArray.forEach(element => {
+      gridMatrix[element.y][element.x] = "spikes";
+    });
+  }
+}
+
+
+// This function handles stunning for both players
 function stunPlayer(stunMole) {
   if (hasWorm == 'mole' && stunMole == true) { 
     dropWorm(); 
@@ -365,14 +407,31 @@ function stunPlayer(stunMole) {
     stunMole ? moleStunned = false : birdStunned = false;
   }, stunDuration * 1000);
 
+  //Cooldown handling (invulnerability frames)
   setTimeout(function() {
     stunMole ? moleStunCd = false : birdStunCd = false;
   }, (stunDuration + stunCdLength) * 1000);
 }
 
+/* Currently unused function for timer handling
+function countdown() {
+  if (time !== 0) {
+    time--;
+    timer.innerText = time.toString().padStart(5, '0');
+  }
+
+  if (time === 0) {
+    // end the game -- player has lost!
+    endGame();
+  }
+}
+*/
+
 // -------------------
 // GAME ANIMATION
 // -------------------
+
+/* Currently unused functions for horizontally moving mechanics
 
 //moves cars and logs to the right when they reach the edge.
 function moveRight(gridRowIndex) {
@@ -386,6 +445,7 @@ function moveRight(gridRowIndex) {
   currentRow.unshift(lastElement);
 }
 
+
 //moves cars and logs to the left when they reach the edge.
 function moveLeft(gridRowIndex) {
   const currentRow = gridMatrix[gridRowIndex];
@@ -395,18 +455,23 @@ function moveLeft(gridRowIndex) {
 
 function animateGame() {
   // Animate river:
-  /*moveRight(1);
-  moveLeft(2); */
+  moveRight(1);
+  moveLeft(2); 
 
   // Animate road:
-  /*moveRight(4);
+  moveRight(4);
   moveRight(5);
-  moveRight(6); */
+  moveRight(6); 
 }
+
+*/
+
 
 // -------------------
 // GAME WIN/LOSS LOGIC
 // -------------------
+
+
 function endGame(reason) {
   // Victory
   if (reason === 'mole-arrived') {
@@ -423,36 +488,19 @@ function endGame(reason) {
 
   
 
-  // Stop the countdown timer
+  // Stop the countdown timer (currently unused)
   //clearInterval(countdownLoop);
   // Stop the game loop
   clearInterval(renderLoop);
-  // Stop the player from being able to control the mole
+  // Stop the players from being able to control the characters
   document.removeEventListener('keyup', playerInput);
   // Display the game over screen
   endGameScreen.classList.remove('hidden');
 }
 
-function countdown() {
-  if (time !== 0) {
-    time--;
-    timer.innerText = time.toString().padStart(5, '0');
-  }
-
-  if (time === 0) {
-    // end the game -- player has lost!
-    endGame();
-  }
-}
-
-//ensures that the worm is replaced if returning it to its spot fails (usually because a player is standing in the spot.)
-function wormCheck() {
-  if (hasWorm == '' && gridMatrix[5][6] == '') {
-    gridMatrix[5][6] = 'worm';
-  }
-}
-
-// RUNNING THE GAME
+// -------------------
+// TECHNICAL PROCESSES
+// -------------------
 
 function render() {
   placeMole();
@@ -463,11 +511,10 @@ function render() {
   wormCheck();
 }
 
-// anonymous function
 const renderLoop = setInterval(function () {
   updateMolePosition();
   updateBirdPosition();
-  animateGame();
+  //animateGame();
   render();
 }, 100);
 
