@@ -101,7 +101,7 @@ function playerInput(event) {
   if (!moleStunned) {
     switch (key) {
       case 'ArrowUp':
-        if (molePosition.y > 0 && !(gridMatrix[molePosition.y - 1][molePosition.x].endsWith('wall'))) molePosition.y--;
+        if (molePosition.y > 5 && !(gridMatrix[molePosition.y - 1][molePosition.x].endsWith('wall'))) molePosition.y--;
         break;
       case 'ArrowDown':
         if (molePosition.y < 10 && !(gridMatrix[molePosition.y + 1][molePosition.x].endsWith('wall'))) molePosition.y++;
@@ -130,7 +130,7 @@ function playerInput(event) {
         break;
       case 's':
       case 'S':
-        if (birdPosition.y < 10 && !(gridMatrix[birdPosition.y + 1][birdPosition.x].endsWith('wall'))) birdPosition.y++;
+        if (birdPosition.y < 5 && !(gridMatrix[birdPosition.y + 1][birdPosition.x].endsWith('wall'))) birdPosition.y++;
         break;
       case 'a':
       case 'A':
@@ -230,7 +230,7 @@ async function moleShoot() {
   let i = molePosition.y - 1;
   for (i; i >= 0; i--) {
     gridMatrix[i+1][startX] = prevYContent;
-    if (gridMatrix[i][startX] === 'bird') {
+    if (gridMatrix[i][startX] === 'bird' || gridMatrix[i][startX] === 'birdWorm') {
       stunPlayer(false);
       break;
     }
@@ -321,7 +321,7 @@ async function birdShoot() {
   let i = birdPosition.y + 1;
   for (i; i < gridMatrix.length; i++) {
     gridMatrix[i-1][startX] = prevYContent;
-    if (gridMatrix[i][startX] === 'mole') {
+    if (gridMatrix[i][startX] === 'mole' || gridMatrix[i][startX] === 'moleWorm') {
       stunPlayer(true);
       break;
     }
@@ -386,6 +386,13 @@ function changeSpikes() {
   else {
     spikesUp = true;
     spikesArray.forEach(element => {
+      //stuns player if they are standing on spikes when they move up
+      if(gridMatrix[element.y][element.x] === 'mole' || gridMatrix[element.y][element.x] === 'moleWorm') {
+        stunPlayer(true);
+      }
+      else if (gridMatrix[element.y][element.x] === 'bird' || gridMatrix[element.y][element.x] === 'birdWorm') {
+        stunPlayer(false);
+      }
       gridMatrix[element.y][element.x] = "spikes";
     });
   }
@@ -527,3 +534,10 @@ document.addEventListener('keyup', playerInput);
 playAgainBtn.addEventListener('click', function () {
   location.reload();
 });
+
+// Prevents arrow key window scrolling
+window.addEventListener("keydown", function(e) {
+  if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+      e.preventDefault();
+  }
+}, false);
